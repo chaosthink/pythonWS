@@ -1,0 +1,64 @@
+#pip 安装方法，拖动pip.exe 到窗口，然后install 包名
+import builtwith
+
+builtwith.parse('http://example.webscraping.com')
+
+builtwith.parse('http://www.97soo.com/')
+#查看网页的搭建方式
+
+c:\python27\pip.exe install python-whois 
+
+import whois 
+print whois.whois('appspot.com')
+print whois.whois('baidu.com')
+#
+#简单的网页下载
+##一个简单的案例
+import urllib2 
+
+def download(url):
+   print 'downloading:',url
+   try:
+      html=urllib2.urlopen(url).read()  #打开，读取文件
+   except urllib2.URLError as e: 
+      print 'download error:',e.reason
+	  html = None
+   return html 
+
+#更新代码，自动进行重试
+from urllib2 import urlopen 
+from urllib2 import URLError
+
+def download(url,num_retries=2):
+   print 'downloading:',url
+   try:
+      html=urlopen(url).read()
+   except URLError as e :
+      print 'download error:',e.reason
+      html = None
+      if num_retries>0:
+         if hasattr(e,'code') and 500 <= e.code <600:
+    	   #recursively retry 5xx http errors
+    	   return download(url,num_retries-1)
+   return html
+
+download('http://httpstat.us/500')
+   
+#控制默认的用户代理，更新代码
+from urllib2 import urlopen 
+from urllib2 import URLError
+from urllib2 import Request
+def download(url,user_agent='wswp',num_retries=2): #2重复下载次数
+   print 'downloading:',url 
+   headers= {'user-agent':user_agent}
+   request = Request(url,headers=headers)
+   try:
+      html=urlopen(request).read()
+   except URLError as e :
+      print 'download error :',e.reason
+      html = None 
+      if num_retries>0:
+         if hasattr(e,'code')and 500 <= e.code <600:
+		 #retry 5XX http errors
+            return download(url,user_agent,num_retries-1)
+   return html
